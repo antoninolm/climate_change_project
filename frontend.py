@@ -1,23 +1,42 @@
 import streamlit as st
 import requests
+from datetime import date
 
-# FastAPI Endpoint URL
-URL = "http://      /predict"  # Update with actual FastAPI URL
+# FastAPI Endpoint URL (Replace with actual API URL)
+URL = "http://.....api-url/predict"
 
-# Sidebar Interaction for Predictions
-st.sidebar.header("📅 Customize Prediction")
-year_selected = st.sidebar.slider("Select a Year (2025-2050)", 2025, 2050, 2030)
+# Streamlit App Title
+st.title("🌡 Temperature Prediction")
 
-# Call FastAPI to get prediction
-params = {"year": year_selected}
-response = requests.get(URL, params=params)
+# Sidebar controls for user input
+st.sidebar.header("📍 Enter Location & Date")
 
-# Handle API Response
-if response.status_code == 200:
-    predicted_temp = response.json()["predicted_temperature"]
-    st.sidebar.write(f"🌡 **Predicted Temperature in {year_selected}: {predicted_temp:.2f}°C**")
-else:
-    st.sidebar.error("❌ Failed to fetch prediction. Check API connection.")
+# User input for Latitude & Longitude
+lat = st.sidebar.number_input("Enter Latitude", min_value=41.0, max_value=51.0, value=48.8566, format="%.6f")
+lon = st.sidebar.number_input("Enter Longitude", min_value=-5.0, max_value=10.0, value=2.3522, format="%.6f")
+
+# Date selection (between 1950-2050)
+selected_date = st.sidebar.date_input("Select a Date", min_value=date(1950, 1, 1), max_value=date(2050, 12, 31), value=date.today())
+
+# Format parameters to match dataset
+params = {
+    "AAAAMMJJ": selected_date.strftime("%Y%m%d"),  # Convert date to YYYYMMDD format
+    "LAT": lat,
+    "LON": lon
+}
+
+# Button to trigger prediction
+if st.sidebar.button("🔍 Predict Temperature"):
+    with st.spinner("Fetching temperature prediction..."):
+        response = requests.get(URL, params=params)
+
+    # Handle API response
+    if response.status_code == 200:
+        predicted_temp = response.json().get("predicted_temperature", "N/A")
+        st.success(f"🌡 **Predicted Temperature on {selected_date}: {predicted_temp}°C**")
+    else:
+        st.error("❌ Failed to fetch prediction. Check API connection.")
+
 
 
 ###
