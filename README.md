@@ -1,2 +1,10 @@
-# climate_change_project
-This is the repository for our awesome final project!
+# Predicting climate change effect over temperatures in France
+
+## API
+
+API related logic is located in the /api folder.
+To run the API (V1), simply enter the following command in your terminal:
+
+```
+fastapi run api/routes.py
+```
