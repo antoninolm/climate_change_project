@@ -2,39 +2,20 @@ import streamlit as st
 import requests
 from datetime import date
 
+# API Endpoint
+URL = "http://localhost:8000/predict"
 
-# FastAPI Endpoint URL (Replace with actual API URL)
-URL = "http://.....api-url/predict"
-
-# Streamlit App Title
 st.title("🌡 Temperature Prediction")
 
-# Sidebar controls for user input
-st.sidebar.header("📅 Select Date")
+# Date selection
+selected_date = st.sidebar.date_input("📅 Pick a date", date.today(), date(1950, 1, 1), date(2025, 3, 20))
+params = {"date": selected_date.strftime("%Y%m%d")}
 
-# Date selection (between 1950-2030)
-selected_date = st.sidebar.date_input(
-    "Select a Date",
-    min_value=date(1950, 1, 1),
-    max_value=date(2030, 12, 31),
-    value=date.today()
-)
-
-# Format parameters to match dataset
-params = {"date": selected_date.strftime("%Y%m%d")}  # Convert date to YYYYMMDD format
-
-# Button to trigger prediction
+# Predict button
 if st.sidebar.button("🔍 Predict Temperature"):
-    with st.spinner("Fetching temperature prediction..."):
-        try:
-            response = requests.get(URL, params=params)
-            response.raise_for_status()  # Ensures an exception is raised for HTTP errors (4xx, 5xx)
-            predicted_temp = response.json().get("predicted_temperature", "N/A")
+    response = requests.get(URL, params=params).json()
+    st.success(f"🌡 **Predicted Temperature: {response.get('predicted_temperature', 'N/A')}°C**")
 
-            # Display result
-            st.success(f"🌡 **Predicted Temperature on {selected_date}: {predicted_temp}°C**")
-        except requests.exceptions.RequestException as e:
-            st.error(f"❌ Failed to fetch prediction. Error: {e}")
 
 
 
