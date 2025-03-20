@@ -2,6 +2,7 @@ import streamlit as st
 import requests
 from datetime import date
 
+
 # FastAPI Endpoint URL (Replace with actual API URL)
 URL = "http://.....api-url/predict"
 
@@ -9,33 +10,31 @@ URL = "http://.....api-url/predict"
 st.title("🌡 Temperature Prediction")
 
 # Sidebar controls for user input
-st.sidebar.header("📍 Enter Location & Date")
+st.sidebar.header("📅 Select Date")
 
-# User input for Latitude & Longitude
-lat = st.sidebar.number_input("Enter Latitude", min_value=41.0, max_value=51.0, value=48.8566, format="%.6f")
-lon = st.sidebar.number_input("Enter Longitude", min_value=-5.0, max_value=10.0, value=2.3522, format="%.6f")
-
-# Date selection (between 1950-2050)
-selected_date = st.sidebar.date_input("Select a Date", min_value=date(1950, 1, 1), max_value=date(2050, 12, 31), value=date.today())
+# Date selection (between 1950-2030)
+selected_date = st.sidebar.date_input(
+    "Select a Date",
+    min_value=date(1950, 1, 1),
+    max_value=date(2030, 12, 31),
+    value=date.today()
+)
 
 # Format parameters to match dataset
-params = {
-    "AAAAMMJJ": selected_date.strftime("%Y%m%d"),  # Convert date to YYYYMMDD format
-    "LAT": lat,
-    "LON": lon
-}
+params = {"date": selected_date.strftime("%Y%m%d")}  # Convert date to YYYYMMDD format
 
 # Button to trigger prediction
 if st.sidebar.button("🔍 Predict Temperature"):
     with st.spinner("Fetching temperature prediction..."):
-        response = requests.get(URL, params=params)
+        try:
+            response = requests.get(URL, params=params)
+            response.raise_for_status()  # Ensures an exception is raised for HTTP errors (4xx, 5xx)
+            predicted_temp = response.json().get("predicted_temperature", "N/A")
 
-    # Handle API response
-    if response.status_code == 200:
-        predicted_temp = response.json().get("predicted_temperature", "N/A")
-        st.success(f"🌡 **Predicted Temperature on {selected_date}: {predicted_temp}°C**")
-    else:
-        st.error("❌ Failed to fetch prediction. Check API connection.")
+            # Display result
+            st.success(f"🌡 **Predicted Temperature on {selected_date}: {predicted_temp}°C**")
+        except requests.exceptions.RequestException as e:
+            st.error(f"❌ Failed to fetch prediction. Error: {e}")
 
 
 
