@@ -8,13 +8,17 @@ URL = "http://localhost:8000/predict"
 st.title("🌡 Temperature Prediction")
 
 # Date selection
-selected_date = st.sidebar.date_input("📅 Pick a date", date.today(), date(1950, 1, 1), date(2025, 3, 20))
-params = {"date": selected_date.strftime("%Y%m%d")}
+# TODO : uncomment for V2 of our MVP
+# selected_date = st.sidebar.date_input("📅 Pick a date", date.today(), date(1950, 1, 1), date.today(), disabled=True)
+params = {} # {"date": selected_date.strftime("%Y%m%d")}
 
 # Predict button
 if st.sidebar.button("🔍 Predict Temperature"):
     response = requests.get(URL, params=params).json()
-    st.success(f"🌡 **Predicted Temperature: {response.get('predicted_temperature', 'N/A')}°C**")
+    print(response)
+    st.success(f"🌡 **Predicted Temperature: {response['prediction']}°C**")
+
+st.sidebar.markdown('This will predict the temperature of the day following the last daily weather report in our dataset. Baby steps..! :)')
 
 
 
