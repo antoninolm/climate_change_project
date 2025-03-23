@@ -101,3 +101,20 @@ sarima_result = sarima_model.fit(method='powell', maxiter=200, disp=True)
 predictions = sarima_result.predict(start=len(train), end=len(df)-1, dynamic=False)
 
 print(predictions.iloc[-7])
+
+def make_predictions(model, steps=1):
+    """
+    Given a trained SARIMA model, this function will forecast the temperature for the next `steps` days.
+    It returns both the predicted values and the confidence intervals.
+    """
+    # Get the forecast for the next `steps` days
+    forecast = model.get_forecast(steps=steps)
+    
+    # Extract the predicted values
+    forecast_values = forecast.predicted_mean
+    
+    # Extract the confidence intervals (optional)
+    conf_int = forecast.conf_int()
+    
+    # Return both the forecasted values and the confidence intervals
+    return forecast_values, conf_int
