@@ -13,8 +13,6 @@ def setup_data_and_model():
     df = get_data()
     df_preprocessed = preprocess(df)
 
-    print(len(df_preprocessed))
-
     (model, df_final, df_train) = create_model(df_preprocessed)
 
     # Save modelas a pickle
