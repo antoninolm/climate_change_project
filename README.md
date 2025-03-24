@@ -10,10 +10,16 @@
 
 ## Getting started
 
-Install packages in order to run the project with the command :
+1) Install packages in order to run the project with the command :
 
 ```
-make setup
+make install
+```
+
+2) Run the following command in order to create, train and save locally the model :
+
+```
+make train_and_save_model
 ```
 
 ## Running the project locally
@@ -28,7 +34,7 @@ API related logic is located in the /api folder.
 To run the API (V1), simply enter the following command in your terminal:
 
 ```
-fastapi run api/main.py
+make run_api
 ```
 
 ## Front-end
@@ -36,5 +42,5 @@ fastapi run api/main.py
 Display a Streamlit webapp that makes uses of the API by running the following command :
 
 ```
-streamlit run interface/frontend.py
+make run_frontend
 ```
