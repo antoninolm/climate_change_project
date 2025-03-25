@@ -317,3 +317,6 @@ yapf==0.32.0
 yarl==1.18.3
 ydata-profiling==4.2.0
 zipp==3.10.0
+
+# Reminder: Run `gcloud components update` to update Google Cloud CLI components.
+google-cloud-storage
