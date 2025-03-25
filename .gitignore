@@ -2,7 +2,13 @@ api/__pycache__
 .python-version
 **/__pycache__/
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 **/.DS_Store/
 .DS_Store
 >>>>>>> 43270d5e6383620b552b3135cea9c736de8fc045
+=======
+**/.DS_Store/
+.DS_Store
+
+>>>>>>> f88b66127fc15c6a98c02a26e0103c681afdc18a
