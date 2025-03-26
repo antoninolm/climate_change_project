@@ -13,11 +13,19 @@ def create_model(df: pd.DataFrame):
     train_ratio = 0.8  # 80% training, 20% testing
     train_size = int(len(df) * train_ratio)
 
+     # Ensure datetime index BEFORE splitting
+    if 'date' in df.columns:
+        df['date'] = pd.to_datetime(df['date'])
+        df.set_index('date', inplace=True)
+
     # Split dataset into training and testing sets
     df_train = df.iloc[:train_size]  # Training data
     # test = df.iloc[train_size:]   # Testing data
 
     target = get_target()
+
+    # FINAL CHECK
+    assert df_train[target].notna().all(), "Training data contains NaNs in target"
 
     # Fit SARIMA model with baseline parameters (simple model)
     sarima_model = SARIMAX(df_train[target],

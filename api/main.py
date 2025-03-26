@@ -32,13 +32,13 @@ def predict():
         It returns both the predicted values and the confidence intervals.
         """
         # Get the forecast for the next `steps` days
-        forecast = model.predict(start=len(train), end=len(df) - steps, dynamic=False)
+        forecast_obj = model.get_forecast(steps=1)
 
         # Extract the predicted values
-        forecast_values = forecast.predicted_mean
+        forecast_values = forecast_obj.predicted_mean
 
         # Extract the confidence intervals (optional)
-        conf_int = forecast.conf_int()
+        conf_int = forecast_obj.conf_int()
 
         # Return both the forecasted values and the confidence intervals
         return forecast_values, conf_int
@@ -47,4 +47,4 @@ def predict():
     forecast_values, conf_int = make_predictions(model, steps=1)  # Predict for 1 day ahead
 
     # Return the forecasted values (temperature)
-    return { 'prediction': forecast_values.tolist(), 'confidence_interval': conf_int.tolist() }
+    return { 'prediction': forecast_values.tolist(), 'confidence_interval': conf_int.values.tolist() }
