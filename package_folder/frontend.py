@@ -4,7 +4,7 @@ from datetime import date
 
 
 # FastAPI Endpoint URL (Replace with actual API URL)
-URL = "http://localhost:8000/predict"
+URL = "https://climatechangeinfrance-877376155256.europe-west1.run.app/predict"
 
 # Streamlit App Title
 st.title("🌡 Temperature Prediction")
@@ -12,11 +12,11 @@ st.title("🌡 Temperature Prediction")
 # Sidebar controls for user input
 st.sidebar.header("📅 Select Date")
 
-# Date selection (between 1950-2050)
+# Date selection (between 1965-2030)
 selected_date = st.sidebar.date_input(
     "Select a Date",
-    min_value=date(1950, 1, 1),
-    max_value=date(2050, 12, 31),
+    min_value=date(1965, 1, 1),
+    max_value=date(2030, 12, 31),
     value=date.today()
 )
 

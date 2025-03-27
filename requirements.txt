@@ -6,3 +6,5 @@ scikit-learn==1.6.1
 numpy==1.26.4
 python-dotenv==0.20.0
 google-cloud-storage==2.4.0
+statsmodels==0.13.2
+matplotlib==3.5.2
