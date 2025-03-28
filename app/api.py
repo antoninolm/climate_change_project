@@ -2,7 +2,7 @@
 API logic
 """
 from fastapi import FastAPI
-from ml_logic.registry import load_model, load_train_and_df
+from ml_logic.registry import load_model
 
 app = FastAPI()
 
@@ -15,15 +15,13 @@ def index():
     return {'ok': True}
 
 @app.get('/predict')
-def predict():
+def predict(steps: int):
     """
     Loads the model and gets a prediction
     """
 
     # Load the model and get data
     model = load_model('sarima')
-
-    (train, df) = load_train_and_df()
 
     def make_predictions(model, steps=1):
         """
@@ -45,8 +43,8 @@ def predict():
 
     # Call the make_predictions function to predict the next day's temperature
 
-    forecast_values, conf_int = make_predictions(model, steps=1)
+    forecast_values, conf_int = make_predictions(model, steps)
 
     # Return the forecasted values (temperature)
 
-    return {'prediction': forecast_values.tolist(), 'confidence_interval': conf_int.values.tolist()}
+    return {'prediction': forecast_values.tolist()[-1], 'confidence_interval': conf_int.values.tolist()[-1]}

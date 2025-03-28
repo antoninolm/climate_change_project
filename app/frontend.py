@@ -13,18 +13,20 @@ URL = 'http://0.0.0.0:8000/predict' # "https://climatechangeinfrance-87737615525
 st.title("🌡 Temperature Prediction")
 
 # Sidebar controls for user input
-st.sidebar.header("📅 Select Date")
+st.sidebar.header("🦶 Select Step")
 
 # Date selection (between 1965-2030)
-selected_date = st.sidebar.date_input(
-    "Select a Date",
-    min_value=date(1965, 1, 1),
-    max_value=date(2030, 12, 31),
-    value=date.today()
+selected_steps = st.sidebar.number_input(
+    "Select the nth day after the last day of training data to predict",
+    min_value=1,
+    max_value=10,
+    value=1
 )
 
 # Format parameters to match dataset
-params = {"date": selected_date.strftime("%Y%m%d")}  # Convert date to YYYYMMDD format
+# Keep this commented out for now
+# params = {"date": selected_date.strftime("%Y%m%d")}  # Convert date to YYYYMMDD format
+params = {"steps": selected_steps}
 
 # Button to trigger prediction
 if st.sidebar.button("🔍 Predict Temperature"):
@@ -32,10 +34,12 @@ if st.sidebar.button("🔍 Predict Temperature"):
         try:
             response = requests.get(URL, params=params, timeout=10)
             response.raise_for_status()  # Ensures an exception is raised for HTTP errors (4xx, 5xx)
-            predicted_temp = response.json().get("predicted_temperature", "N/A")
+            response_json = response.json()
+            print(response_json)
+            predicted_temp = response_json.get("prediction", "N/A")
 
             # Display result
-            st.success(f"🌡 **Predicted Temperature on {selected_date}: {predicted_temp}°C**")
+            st.success(f"🌡 **Predicted Temperature the step / day n°{selected_steps} after the last day of training data (31/12/2023): {round(predicted_temp,2)}°C**")
         except requests.exceptions.RequestException as e:
             st.error(f"❌ Failed to fetch prediction. Error: {e}")
 
