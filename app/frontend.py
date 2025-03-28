@@ -1,10 +1,13 @@
-import streamlit as st
-import requests
+"""
+Frontend logic
+"""
 from datetime import date
 
+import streamlit as st
+import requests
 
 # FastAPI Endpoint URL (Replace with actual API URL)
-URL = "https://climatechangeinfrance-877376155256.europe-west1.run.app/predict"
+URL = 'http://0.0.0.0:8000/predict' # "https://climatechangeinfrance-877376155256.europe-west1.run.app/predict"
 
 # Streamlit App Title
 st.title("🌡 Temperature Prediction")
@@ -27,7 +30,7 @@ params = {"date": selected_date.strftime("%Y%m%d")}  # Convert date to YYYYMMDD 
 if st.sidebar.button("🔍 Predict Temperature"):
     with st.spinner("Fetching temperature prediction..."):
         try:
-            response = requests.get(URL, params=params)
+            response = requests.get(URL, params=params, timeout=10)
             response.raise_for_status()  # Ensures an exception is raised for HTTP errors (4xx, 5xx)
             predicted_temp = response.json().get("predicted_temperature", "N/A")
 

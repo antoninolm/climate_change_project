@@ -1,9 +1,9 @@
 """
 All the loading / saving model
 """
+import os
 import pickle
 import pandas as pd
-import os
 
 def save_model(model,file_name):
     """
@@ -22,10 +22,10 @@ def load_model(file_name: str):
         return model
 
 def save_train_and_df(train: pd.DataFrame, df: pd.DataFrame):
-    os.makedirs("data/sarima", exist_ok=True)
     """
     Temporary function, to remove after we stop using SARIMAX
     """
+    os.makedirs("data/sarima", exist_ok=True)
     with open("data/sarima/train.pkl", "wb") as f:
         pickle.dump(train, f)
 
@@ -39,8 +39,8 @@ def load_train_and_df():
     with open("data/sarima/train.pkl", 'rb') as train_file:
         train = pickle.load(train_file)  # Load the SARIMA model
     with open("data/sarima/df.pkl", 'rb') as df_file:
-            df = pickle.load(df_file)  # Load the SARIMA model
-     # ✅ Ensure datetime index
+        df = pickle.load(df_file)  # Load the SARIMA model
+    # ✅ Ensure datetime index
     for frame in [train, df]:
         if not isinstance(frame.index, pd.DatetimeIndex):
             frame.index = pd.to_datetime(frame.index)

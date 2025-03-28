@@ -1,21 +1,21 @@
-# # Setup the project by installing packages, and
-# install:
-# 	pip install -r requirements.txt
-# train_and_save_model:
-# 	python setup.py
-# # Run locally the front-end and the API concurrently
-# develop:
-# 	make -j 2 run_api run_frontend
-# run_api:
-# 	fastapi run api/main.py
-# run_frontend:
-# 	streamlit run interface/frontend.py
+all:
+	build_container_local
+	run_container_local
+	allow_docker_push
+	create_artifacts_repo
+	build_for_production
+	m_chip_build_image_production
+	push_image_production
+	deploy_to_cloud_run
+	cloud_run_disable_service
 
+# Setup the project by installing packages, and
+install:
+	pip install -r requirements.txt
 
 #########
 ### DOCKER LOCAL
 #########
-
 build_container_local:
 	docker build --tag=$$IMAGE:dev .
 
@@ -55,9 +55,19 @@ deploy_to_cloud_run:
 # Disabling the Service
 # Adjust the service's configuration to scale down to zero instances.
 # This way, no resources will be used, and you won't incur charges for active instances.
-cloud_run_disable_service:
-	gcloud run services update $$INSTANCE --min-instances=0
+# cloud_run_disable_service:
+# 	gcloud run services update $$INSTANCE --min-instances=0
 
 # Delete the Service
-cloud_run_delete_service:
-	gcloud run services delete $$INSTANCE
+# cloud_run_delete_service:
+# 	gcloud run services delete $$INSTANCE
+
+train_and_save_model:
+	python setup.py
+# Run locally the front-end and the API concurrently
+develop:
+	make -j 2 run_api run_frontend
+run_api:
+	fastapi run app/api.py
+run_frontend:
+	streamlit run app/frontend.py
