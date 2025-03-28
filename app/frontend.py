@@ -1,13 +1,18 @@
 """
 Frontend logic
 """
-from datetime import date
-
+import os
+from dotenv import load_dotenv
 import streamlit as st
 import requests
 
+load_dotenv()
+
 # FastAPI Endpoint URL (Replace with actual API URL)
-URL = "https://climatechangeinfrance-877376155256.europe-west1.run.app/predict"
+# if local dev -> 0.0.0.0:8000
+endpoint = os.getenv("GCLOUD_RUN_URL") or "http://0.0.0.0:8000"
+print(f"Using endpoint: {endpoint}")
+URL = f"{endpoint}/predict"
 
 # Streamlit App Title
 st.title("🌡 Temperature Prediction")
