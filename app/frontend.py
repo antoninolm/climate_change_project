@@ -37,7 +37,7 @@ params = {"steps": selected_steps}
 if st.sidebar.button("🔍 Predict Temperature"):
     with st.spinner("Fetching temperature prediction..."):
         try:
-            response = requests.get(URL, params=params, timeout=10)
+            response = requests.get(URL, params=params, timeout=3000)
             response.raise_for_status()  # Ensures an exception is raised for HTTP errors (4xx, 5xx)
             response_json = response.json()
             print(response_json)

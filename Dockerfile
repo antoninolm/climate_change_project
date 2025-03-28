@@ -4,6 +4,7 @@ FROM python:3.10-slim
 COPY app app
 COPY ml_logic ml_logic
 COPY requirements.txt requirements.txt
+COPY models models
 
 # Install dependencies
 RUN pip install --upgrade pip
