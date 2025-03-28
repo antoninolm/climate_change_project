@@ -7,7 +7,7 @@ import streamlit as st
 import requests
 
 # FastAPI Endpoint URL (Replace with actual API URL)
-URL = 'http://0.0.0.0:8000/predict' # "https://climatechangeinfrance-877376155256.europe-west1.run.app/predict"
+URL = "https://climatechangeinfrance-877376155256.europe-west1.run.app/predict"
 
 # Streamlit App Title
 st.title("🌡 Temperature Prediction")
