@@ -1,14 +1,3 @@
-all:
-	build_container_local
-	run_container_local
-	allow_docker_push
-	create_artifacts_repo
-	build_for_production
-	m_chip_build_image_production
-	push_image_production
-	deploy_to_cloud_run
-	cloud_run_disable_service
-
 # Setup the project by installing packages, and
 install:
 	pip install -r requirements.txt
