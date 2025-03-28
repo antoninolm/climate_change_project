@@ -77,4 +77,9 @@ def preprocess(df: pd.DataFrame):
     # Define features (Exclude the target variable and excluded columns)
     # features = [col for col in df.columns if col not in exclude_columns + [target, 'NOM_USUEL']]
     # print(features)
+    assert isinstance(df.index, pd.DatetimeIndex), "Index is not a DatetimeIndex"
+    assert df.index.is_monotonic_increasing, "Datetime index is not sorted"
+    assert not df.index.has_duplicates, "Datetime index has duplicate values"
+    assert df['TNTXM'].notna().all(), "Target column contains NaNs"
+
     return df

@@ -1,0 +1,9 @@
+notebooks/
+raw_data/
+__pycache__/
+*.ipynb
+*.pkl
+*.gz
+.DS_Store
+.git/
+.vscode/

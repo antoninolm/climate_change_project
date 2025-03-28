@@ -1,6 +1,7 @@
 """
 All the loading / saving model
 """
+import os
 import pickle
 import pandas as pd
 
@@ -19,24 +20,3 @@ def load_model(file_name: str):
         model = pickle.load(model_file)
 
         return model
-
-def save_train_and_df(train: pd.DataFrame, df: pd.DataFrame):
-    """
-    Temporary function, to remove after we stop using SARIMAX
-    """
-    with open("data/sarima/train.pkl", "wb") as f:
-        pickle.dump(train, f)
-
-    with open("data/sarima/df.pkl", "wb") as f:
-        pickle.dump(df, f)
-
-def load_train_and_df():
-    """
-    Temporary function, to remove after we stop using SARIMAX
-    """
-    with open("data/sarima/train.pkl", 'rb') as train_file:
-        train = pickle.load(train_file)  # Load the SARIMA model
-        with open("data/sarima/df.pkl", 'rb') as df_file:
-            df = pickle.load(df_file)  # Load the SARIMA model
-
-            return (train, df)
