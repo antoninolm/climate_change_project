@@ -63,7 +63,8 @@ if st.sidebar.button("🔍 Predict Temperature"):
             predicted_temp = response_json.get("prediction", "N/A")
 
             # Display result
-            st.success(f"🌡 **Predicted Temperature the step / day n°{days_difference} after the last day of training data (31/12/2023): {round(predicted_temp, 2)}°C**")
+            st.success(f"🌡 **Predicted Temperature for {selected_date}: {round(predicted_temp, 2)}°C**")
+
         except requests.exceptions.RequestException as e:
             st.error(f"❌ Failed to fetch prediction. Error: {e}")
 
