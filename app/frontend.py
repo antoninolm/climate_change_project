@@ -5,6 +5,7 @@ import os
 from dotenv import load_dotenv
 import streamlit as st
 import requests
+from datetime import datetime, timedelta
 
 load_dotenv()
 
@@ -20,18 +21,36 @@ st.title("🌡 Temperature Prediction")
 # Sidebar controls for user input
 st.sidebar.header("🦶 Select Step")
 
-# Date selection (between 1965-2030)
-selected_steps = st.sidebar.number_input(
-    "Select the nth day after the last day of training data to predict",
-    min_value=1,
-    max_value=10,
-    value=1
+# Define the known last date of data (31/12/2023)
+last_date = datetime(2023, 12, 31)
+
+# Define the earliest valid date (1st January 2024)
+earliest_valid_date = datetime(2024, 1, 1)
+
+# Define the latest valid date (7th January 2024)
+latest_valid_date = datetime(2024, 1, 7)
+
+# Date selection (limit between 1st Jan 2024 and 7th Jan 2024)
+selected_date = st.sidebar.date_input(
+    "Select a date",
+    min_value=earliest_valid_date.date(),  # Limit to Jan 1, 2024
+    max_value=latest_valid_date.date(),    # Limit to Jan 7, 2024
+    value=earliest_valid_date.date()       # Default to the first date
 )
+
+# Calculate the difference in days between the selected date and the last known date (31/12/2023)
+days_difference = (selected_date - last_date.date()).days
+
+# Display the selected date and the difference
+st.sidebar.write(f"Selected date: {selected_date}")
+st.sidebar.write(f"Days from 31/12/2023: {days_difference} days")
 
 # Format parameters to match dataset
 # Keep this commented out for now
 # params = {"date": selected_date.strftime("%Y%m%d")}  # Convert date to YYYYMMDD format
-params = {"steps": selected_steps}
+
+# Use the calculated days difference as the 'steps' parameter
+params = {"steps": days_difference}
 
 # Button to trigger prediction
 if st.sidebar.button("🔍 Predict Temperature"):
@@ -44,10 +63,10 @@ if st.sidebar.button("🔍 Predict Temperature"):
             predicted_temp = response_json.get("prediction", "N/A")
 
             # Display result
-            st.success(f"🌡 **Predicted Temperature the step / day n°{selected_steps} after the last day of training data (31/12/2023): {round(predicted_temp,2)}°C**")
+            st.success(f"🌡 **Predicted Temperature for {selected_date}: {round(predicted_temp, 2)}°C**")
+
         except requests.exceptions.RequestException as e:
             st.error(f"❌ Failed to fetch prediction. Error: {e}")
-
 
 
 ###
