@@ -63,7 +63,7 @@ prediction_placeholder = st.empty()
 # Add the temperature image (daily temperature graph)
 st.subheader("📈 Daily Temperature Chart")
 image_path = os.path.join(os.path.dirname(__file__), 'images', 'image-Tem-Paris-20250403-min.png')
-st.image(image_path, caption="Daily Temperature in Aix-en-Provence", use_container_width=True)
+st.image(image_path, caption="Daily Temperature in Aix-en-Provence")
 # The image is for Paris, just for presentation purpose we show "Aix-en-Provence" in the caption
 
 # Button to trigger prediction
