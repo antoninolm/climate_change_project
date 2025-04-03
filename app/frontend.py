@@ -5,7 +5,10 @@ import os
 from dotenv import load_dotenv
 import streamlit as st
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime
+import pandas as pd
+import folium
+from streamlit_folium import st_folium
 
 load_dotenv()
 
@@ -52,6 +55,11 @@ st.sidebar.write(f"Days from 31/12/2023: {days_difference} days")
 # Use the calculated days difference as the 'steps' parameter
 params = {"steps": days_difference}
 
+# Create a placeholder for the prediction result using st.empty() to ensure
+# the prediction result is displayed correctly without being overwritten by the map.
+# This allows us to dynamically update the prediction in place while keeping the map
+prediction_placeholder = st.empty()
+
 # Button to trigger prediction
 if st.sidebar.button("🔍 Predict Temperature"):
     with st.spinner("Fetching temperature prediction..."):
@@ -62,12 +70,29 @@ if st.sidebar.button("🔍 Predict Temperature"):
             print(response_json)
             predicted_temp = response_json.get("prediction", "N/A")
 
-            # Display result
-            st.success(f"🌡 **Predicted Temperature for {selected_date}: {round(predicted_temp, 2)}°C**")
+            # When the prediction is fetched, we update the placeholder with the prediction result.
+            # Using the placeholder prevents layout issues and ensures the result stays visible
+            # even when other components (like the map) are rendered afterward.
+            prediction_placeholder.success(f"🌡 **Predicted Temperature for {selected_date}: {round(predicted_temp, 2)}°C**")
 
         except requests.exceptions.RequestException as e:
-            st.error(f"❌ Failed to fetch prediction. Error: {e}")
+            prediction_placeholder.error(f"❌ Failed to fetch prediction. Error: {e}")
 
+# Map of France with a Pin on Aix-en-Provence
+st.subheader("📍 Location: Aix-en-Provence")
+
+# Coordinates for Aix-en-Provence
+latitude = 43.529742
+longitude = 5.447427
+
+# Create a Folium map centered on France
+france_map = folium.Map(location=[46.603354, 1.888334], zoom_start=6)  # Coordinates for the center of France
+
+# Add a marker for Aix-en-Provence
+folium.Marker([latitude, longitude], popup="Aix-en-Provence").add_to(france_map)
+
+# Display the map in Streamlit using the st_folium function
+st_folium(france_map, width=700, height=500)
 
 ###
 # Pushing Frontend Files to GitHub
