@@ -13,7 +13,7 @@ def create_model(df: pd.DataFrame):
     train_ratio = 0.8  # 80% training, 20% testing
     train_size = int(len(df) * train_ratio)
 
-     # Ensure datetime index BEFORE splitting
+    # Ensure datetime index BEFORE splitting
     if 'date' in df.columns:
         df['date'] = pd.to_datetime(df['date'])
         df.set_index('date', inplace=True)
@@ -38,4 +38,4 @@ def create_model(df: pd.DataFrame):
     sarima_model = sarima_model.fit(method='powell', maxiter=200, disp=True)
 
     # We should later on only return the model, for SARIMA we need df and df_train
-    return (sarima_model, df, df_train)
+    return sarima_model
