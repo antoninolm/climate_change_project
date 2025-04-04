@@ -2,28 +2,26 @@
 API logic
 """
 from fastapi import FastAPI
-from ml_logic.registry import load_model, load_train_and_df
+from ml_logic.registry import load_model
 
 app = FastAPI()
 
-# This allows us to make sure our server is running
+# Check if the server is running
 @app.get('/')
 def index():
     """
     Healthcheck route
     """
-    return { 'ok': True }
+    return {'ok': True}
 
-# Main route get the prediction for the day after the last one in the dataset
 @app.get('/predict')
-def predict():
+def predict(steps: int):
     """
     Loads the model and gets a prediction
     """
-    # Load the pre-trained model (assuming it's stored as arima_model.pkl)
-    model = load_model('sarima')
 
-    (train, df) = load_train_and_df()
+    # Load the model and get data
+    model = load_model('sarima')
 
     def make_predictions(model, steps=1):
         """
@@ -32,7 +30,7 @@ def predict():
         It returns both the predicted values and the confidence intervals.
         """
         # Get the forecast for the next `steps` days
-        forecast_obj = model.get_forecast(steps=1)
+        forecast_obj = model.get_forecast(steps=steps)
 
         # Extract the predicted values
         forecast_values = forecast_obj.predicted_mean
@@ -44,7 +42,9 @@ def predict():
         return forecast_values, conf_int
 
     # Call the make_predictions function to predict the next day's temperature
-    forecast_values, conf_int = make_predictions(model, steps=1)  # Predict for 1 day ahead
+
+    forecast_values, conf_int = make_predictions(model, steps)
 
     # Return the forecasted values (temperature)
-    return { 'prediction': forecast_values.tolist(), 'confidence_interval': conf_int.values.tolist() }
+
+    return {'prediction': forecast_values.tolist()[-1], 'confidence_interval': conf_int.values.tolist()[-1]}
