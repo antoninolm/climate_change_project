@@ -1,9 +1,7 @@
 """
 All the loading / saving model
 """
-import os
 import pickle
-import pandas as pd
 
 def save_model(model,file_name):
     """
