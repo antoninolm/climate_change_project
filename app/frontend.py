@@ -49,14 +49,30 @@ days_difference = (selected_date - last_date.date()).days
 st.sidebar.write(f"Selected date: {selected_date}")
 st.sidebar.write(f"Days from 31/12/2023: {days_difference} days")
 
+# Load station metadata from CSV
+@st.cache_data
+def load_station_data():
+    df = pd.read_csv("app/stations_with_regions.csv")
+    return df.dropna(subset=["LAT", "LON", "REGION", "DEP"])
+
+df_top = load_station_data()
+station_names = df_top["NOM_USUEL"].sort_values().unique()
+
+# Dropdown to select one of the available stations
+selected_station = st.sidebar.selectbox("📍 Select Station", station_names)
+
+# Format parameters to match dataset
 # Keep this commented out for now
 # params = {"date": selected_date.strftime("%Y%m%d")}  # Convert date to YYYYMMDD format
+
 # Prepare parameters for the API request
 params = {
-    "steps": days_difference
+    "steps": days_difference,
+    "station": selected_station
 }
 
-# Store prediction in session state to persist it through re-renders
+# Create a placeholder for the prediction result using st.session_state
+# This ensures the prediction stays visible even after Streamlit rerenders the page
 if "prediction_msg" not in st.session_state:
     st.session_state.prediction_msg = ""
 
@@ -76,15 +92,16 @@ if st.sidebar.button("🔍 Predict Temperature"):
             print(response_json)
             predicted_temp = response_json.get("prediction", "N/A")
 
-            # Store prediction result in session state
+            # When the prediction is fetched, we update the session_state with the result.
+            # This ensures the result stays visible even when other components (like the map) rerender.
             st.session_state.prediction_msg = (
-                f"🌡 **Predicted Temperature for {selected_date}: {round(predicted_temp, 2)}°C**"
+                f"🌡 **Predicted Temperature for {selected_station} on {selected_date}: {round(predicted_temp, 2)}°C**"
             )
 
         except requests.exceptions.RequestException as e:
             st.session_state.prediction_msg = f"❌ Failed to fetch prediction. Error: {e}"
 
-# Display prediction message (even after re-renders)
+# Display the prediction result
 if st.session_state.prediction_msg:
     if "❌" in st.session_state.prediction_msg:
         st.error(st.session_state.prediction_msg)
@@ -96,14 +113,6 @@ if st.session_state.prediction_msg:
 # -------------------------------
 
 st.subheader("📍 All Weather Stations Map")
-
-# Load station metadata from CSV
-@st.cache_data
-def load_station_data():
-    df = pd.read_csv("app/stations_with_regions.csv")
-    return df.dropna(subset=["LAT", "LON", "REGION", "DEP"])
-
-df_top = load_station_data()
 
 # Radio to choose color mode
 color_mode = st.radio("Choose how to color stations:", ["By Region", "By Department"])
