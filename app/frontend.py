@@ -23,7 +23,7 @@ URL = f"{endpoint}/predict"
 st.title("🌡 Temperature Prediction")
 
 # Sidebar controls for user input
-st.sidebar.header("🦶 Select Step")
+st.sidebar.header("📋 Prediction Settings")
 
 # Define the known last date of data (31/12/2023)
 last_date = datetime(2023, 12, 31)
@@ -36,7 +36,7 @@ latest_valid_date = datetime(2024, 1, 7)
 
 # Date selection (limit between 1st Jan 2024 and 7th Jan 2024)
 selected_date = st.sidebar.date_input(
-    "Select a date",
+    "📅 Select a date",
     min_value=earliest_valid_date.date(),  # Limit to Jan 1, 2024
     max_value=latest_valid_date.date(),    # Limit to Jan 7, 2024
     value=earliest_valid_date.date()       # Default to the first date
