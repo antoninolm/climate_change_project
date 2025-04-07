@@ -9,6 +9,7 @@ from datetime import datetime
 import pandas as pd
 import folium
 from streamlit_folium import st_folium
+import seaborn as sns  # Needed for color palettes
 
 load_dotenv()
 
@@ -48,17 +49,16 @@ days_difference = (selected_date - last_date.date()).days
 st.sidebar.write(f"Selected date: {selected_date}")
 st.sidebar.write(f"Days from 31/12/2023: {days_difference} days")
 
-# Format parameters to match dataset
 # Keep this commented out for now
 # params = {"date": selected_date.strftime("%Y%m%d")}  # Convert date to YYYYMMDD format
+# Prepare parameters for the API request
+params = {
+    "steps": days_difference
+}
 
-# Use the calculated days difference as the 'steps' parameter
-params = {"steps": days_difference}
-
-# Create a placeholder for the prediction result using st.empty() to ensure
-# the prediction result is displayed correctly without being overwritten by the map.
-# This allows us to dynamically update the prediction in place while keeping the map
-prediction_placeholder = st.empty()
+# Store prediction in session state to persist it through re-renders
+if "prediction_msg" not in st.session_state:
+    st.session_state.prediction_msg = ""
 
 # Add the temperature image (daily temperature graph)
 st.subheader("📈 Daily Temperature Chart")
@@ -76,29 +76,71 @@ if st.sidebar.button("🔍 Predict Temperature"):
             print(response_json)
             predicted_temp = response_json.get("prediction", "N/A")
 
-            # When the prediction is fetched, we update the placeholder with the prediction result.
-            # Using the placeholder prevents layout issues and ensures the result stays visible
-            # even when other components (like the map) are rendered afterward.
-            prediction_placeholder.success(f"🌡 **Predicted Temperature for {selected_date}: {round(predicted_temp, 2)}°C**")
+            # Store prediction result in session state
+            st.session_state.prediction_msg = (
+                f"🌡 **Predicted Temperature for {selected_date}: {round(predicted_temp, 2)}°C**"
+            )
 
         except requests.exceptions.RequestException as e:
-            prediction_placeholder.error(f"❌ Failed to fetch prediction. Error: {e}")
+            st.session_state.prediction_msg = f"❌ Failed to fetch prediction. Error: {e}"
 
-# Map of France with a Pin on Aix-en-Provence
-st.subheader("📍 Location: Aix-en-Provence")
+# Display prediction message (even after re-renders)
+if st.session_state.prediction_msg:
+    if "❌" in st.session_state.prediction_msg:
+        st.error(st.session_state.prediction_msg)
+    else:
+        st.success(st.session_state.prediction_msg)
 
-# Coordinates for Aix-en-Provence
-latitude = 43.529742
-longitude = 5.447427
+# -------------------------------
+# All Stations Map Section
+# -------------------------------
 
-# Create a Folium map centered on France
-france_map = folium.Map(location=[46.603354, 1.888334], zoom_start=6)  # Coordinates for the center of France
+st.subheader("📍 All Weather Stations Map")
 
-# Add a marker for Aix-en-Provence
-folium.Marker([latitude, longitude], popup="Aix-en-Provence").add_to(france_map)
+# Load station metadata from CSV
+@st.cache_data
+def load_station_data():
+    df = pd.read_csv("app/stations_with_regions.csv")
+    return df.dropna(subset=["LAT", "LON", "REGION", "DEP"])
 
-# Display the map in Streamlit using the st_folium function
-st_folium(france_map, width=700, height=500)
+df_top = load_station_data()
+
+# Radio to choose color mode
+color_mode = st.radio("Choose how to color stations:", ["By Region", "By Department"])
+
+if color_mode == "By Region":
+    unique_vals = df_top["REGION"].unique()
+    palette = sns.color_palette("hsv", len(unique_vals)).as_hex()
+    color_map = dict(zip(unique_vals, palette))
+    color_col = "REGION"
+    title = "🗺️ Stations Colored by Region"
+else:
+    unique_vals = df_top["DEP"].unique()
+    palette = sns.color_palette("tab20", len(unique_vals)).as_hex()
+    color_map = dict(zip(unique_vals, palette))
+    color_col = "DEP"
+    title = "🗺️ Stations Colored by Department"
+
+st.subheader(title)
+
+# Center map around average coordinates
+map_center = [df_top["LAT"].mean(), df_top["LON"].mean()]
+station_map = folium.Map(location=map_center, zoom_start=6)
+
+# Add each station as a pin
+for _, row in df_top.iterrows():
+    key = row[color_col]
+    folium.CircleMarker(
+        location=[row["LAT"], row["LON"]],
+        radius=5,
+        color=color_map.get(key, "gray"),
+        fill=True,
+        fill_opacity=0.9,
+        popup=f"{row['NOM_USUEL']} ({color_col}: {key})"
+    ).add_to(station_map)
+
+# Display the interactive map
+st_folium(station_map, width=800, height=600)
 
 ###
 # Pushing Frontend Files to GitHub
