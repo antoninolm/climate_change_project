@@ -18,6 +18,14 @@ def index():
     """
     return {'ok': True}
 
+@app.get('/cities')
+def get_cities():
+    """
+    Returns the list of cities to display on the front-end
+    """
+
+    return city_models.keys()
+
 @app.get('/predict')
 def predict(city: str, years: int, month: int):
     """
@@ -28,7 +36,7 @@ def predict(city: str, years: int, month: int):
     model = city_models[city]
 
     # Build future dataframe
-    future = model.make_future_dataframe(periods=(years + 1)*12, freq='MS')  # +1 pour s'assurer d'avoir assez de données
+    future = model.make_future_dataframe(periods=(years + 1)*12, freq='MS')
 
     # Set future constant features
     last_co2 = model.history['co2'].iloc[-1]
