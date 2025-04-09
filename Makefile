@@ -2,6 +2,17 @@
 install:
 	pip install -r requirements.txt
 
+setup:
+	python setup.py
+
+# Run locally the front-end and the API concurrently
+develop:
+	make -j 2 run_api run_frontend
+run_api:
+	fastapi run app/api.py
+run_frontend:
+	streamlit run app/frontend.py
+
 #########
 ### DOCKER LOCAL
 #########
@@ -40,13 +51,3 @@ push_image_production:
 # Step 5
 deploy_to_cloud_run:
 	gcloud run deploy --image $$GCP_REGION-docker.pkg.dev/$$GCP_PROJECT/$$ARTIFACTSREPO/$$IMAGE:prod --memory $$MEMORY --region $$GCP_REGION
-
-train_and_save_model:
-	python setup.py
-# Run locally the front-end and the API concurrently
-develop:
-	make -j 2 run_api run_frontend
-run_api:
-	fastapi run app/api.py
-run_frontend:
-	streamlit run app/frontend.py

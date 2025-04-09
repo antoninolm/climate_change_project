@@ -3,7 +3,6 @@ api/__pycache__
 **/__pycache__/
 **/.DS_Store/
 .DS_Store
-models/**
 data/**
 .env
 raw_data/all_clean_weather_1984_2024_filtered.csv

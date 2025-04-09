@@ -15,7 +15,7 @@ load_dotenv()
 
 # FastAPI Endpoint URL (Replace with actual API URL)
 # if local dev -> 0.0.0.0:8000
-endpoint = os.getenv("GCLOUD_RUN_URL") or "http://0.0.0.0:8000"
+endpoint = "http://0.0.0.0:8000" #os.getenv("GCLOUD_RUN_URL") or "http://0.0.0.0:8000"
 print(f"Using endpoint: {endpoint}")
 URL = f"{endpoint}/predict"
 
@@ -50,7 +50,6 @@ st.sidebar.write(f"Selected date: {selected_date}")
 st.sidebar.write(f"Days from 31/12/2023: {days_difference} days")
 
 # Load station metadata from CSV
-@st.cache_data
 def load_station_data():
     df = pd.read_csv("app/stations_with_regions.csv")
     return df.dropna(subset=["LAT", "LON", "REGION", "DEP"])
@@ -67,8 +66,9 @@ selected_station = st.sidebar.selectbox("📍 Select Station", station_names)
 
 # Prepare parameters for the API request
 params = {
-    "steps": days_difference,
-    "station": selected_station
+    "city": 'AJACCIO',
+    "years": 20,
+    "month": 7,
 }
 
 # Create a placeholder for the prediction result using st.session_state
@@ -89,8 +89,8 @@ if st.sidebar.button("🔍 Predict Temperature"):
             response = requests.get(URL, params=params, timeout=3000)
             response.raise_for_status()  # Ensures an exception is raised for HTTP errors (4xx, 5xx)
             response_json = response.json()
-            print(response_json)
-            predicted_temp = response_json.get("prediction", "N/A")
+            
+            predicted_temp = response_json[1]
 
             # When the prediction is fetched, we update the session_state with the result.
             # This ensures the result stays visible even when other components (like the map) rerender.
