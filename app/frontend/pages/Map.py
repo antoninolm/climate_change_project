@@ -58,7 +58,6 @@ for _, row in df_top.iterrows():
         popup=f"{row['NOM_USUEL']} ({color_col}: {key})"
     ).add_to(station_map)
 
-st.markdown('<div id="leafletmap">')
 
 
 # Display the interactive map
