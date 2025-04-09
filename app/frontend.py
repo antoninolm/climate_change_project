@@ -25,29 +25,17 @@ st.title("🌡 Temperature Prediction")
 # Sidebar controls for user input
 st.sidebar.header("📋 Prediction Settings")
 
-# Define the known last date of data (31/12/2023)
-last_date = datetime(2023, 12, 31)
+st.sidebar.markdown("### Prediction Horizon")
+horizon_years = st.sidebar.selectbox("📈 Select time horizon (years)", [5, 10, 20, 30])
 
-# Define the earliest valid date (1st January 2024)
-earliest_valid_date = datetime(2024, 1, 1)
+# Calculate steps and target date from today
+steps = horizon_years * 365
+base_date = datetime.today().date()
+selected_date = base_date + pd.to_timedelta(steps, unit="D")
 
-# Define the latest valid date (7th January 2024)
-latest_valid_date = datetime(2024, 1, 7)
-
-# Date selection (limit between 1st Jan 2024 and 7th Jan 2024)
-selected_date = st.sidebar.date_input(
-    "📅 Select a date",
-    min_value=earliest_valid_date.date(),  # Limit to Jan 1, 2024
-    max_value=latest_valid_date.date(),    # Limit to Jan 7, 2024
-    value=earliest_valid_date.date()       # Default to the first date
-)
-
-# Calculate the difference in days between the selected date and the last known date (31/12/2023)
-days_difference = (selected_date - last_date.date()).days
-
-# Display the selected date and the difference
-st.sidebar.write(f"Selected date: {selected_date}")
-st.sidebar.write(f"Days from 31/12/2023: {days_difference} days")
+# Show helpful info in the sidebar
+st.sidebar.write(f"Prediction starts from: {base_date}")
+st.sidebar.write(f"Target prediction date: {selected_date}")
 
 # Load station metadata from CSV
 @st.cache_data
@@ -67,7 +55,7 @@ selected_station = st.sidebar.selectbox("📍 Select Station", station_names)
 
 # Prepare parameters for the API request
 params = {
-    "steps": days_difference,
+    "steps": steps,
     "station": selected_station
 }
 
