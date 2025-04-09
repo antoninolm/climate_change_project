@@ -11,12 +11,18 @@ def setup_data_and_model():
     Get the data and instantiate the model
     """
     df = get_data()
+
     df_preprocessed = preprocess(df)
 
-    model = create_model(df_preprocessed)
+    cities = df_preprocessed['location'].unique()
 
-    # Save modelas a pickle
-    save_model(model, 'sarima')
+    for city in cities:
+        city_df = df_preprocessed[df_preprocessed['location'] == city]
+
+        model = create_model(city_df)
+
+        save_model(model, city)
+
 
     print('Successfully created model and pickle files!')
 

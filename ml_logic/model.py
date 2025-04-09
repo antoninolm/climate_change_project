@@ -2,40 +2,35 @@
 All the modeling logic/code
 """
 import pandas as pd
-from statsmodels.tsa.statespace.sarimax import SARIMAX
-from ml_logic.preprocessing import get_target
+from prophet import Prophet
 
 def create_model(df: pd.DataFrame):
     """
     Instantiate the model, trains it and returns it
     """
-    # Define the train-test split ratio
-    train_ratio = 0.8  # 80% training, 20% testing
-    train_size = int(len(df) * train_ratio)
+    monthly_avg = df.groupby(['year', 'month']).agg({
+        'avg_temperature': 'mean',
+        'co2': 'mean',
+        'ch4': 'mean',
+        'amount_precipitation': 'mean'
+    }).reset_index()
 
-    # Ensure datetime index BEFORE splitting
-    if 'date' in df.columns:
-        df['date'] = pd.to_datetime(df['date'])
-        df.set_index('date', inplace=True)
+    # Prepare Prophet dataframe
+    monthly_avg['ds'] = pd.to_datetime(monthly_avg['year'].astype(str) + '-' + monthly_avg['month'].astype(str) + '-01')
+    monthly_avg['y'] = monthly_avg['avg_temperature']
+    prophet_df = monthly_avg[['ds', 'y', 'co2', 'ch4', 'amount_precipitation']]
 
-    # Split dataset into training and testing sets
-    df_train = df.iloc[:train_size]  # Training data
-    # test = df.iloc[train_size:]   # Testing data
+    # Train Prophet
+    model = Prophet(
+        yearly_seasonality=True,
+        daily_seasonality=False,
+        weekly_seasonality=False,
+        seasonality_mode='multiplicative',
+    )
+    model.add_regressor('co2', prior_scale=2.0)
+    model.add_regressor('ch4', prior_scale=1.0)
+    model.add_regressor('amount_precipitation', prior_scale=1.0)
 
-    target = get_target()
-
-    # FINAL CHECK
-    assert df_train[target].notna().all(), "Training data contains NaNs in target"
-
-    # Fit SARIMA model with baseline parameters (simple model)
-    sarima_model = SARIMAX(df_train[target],
-                        order=(2, 1, 2),         # ARIMA component (p, d, q)
-                        seasonal_order=(2, 1, 2, 12),  # Seasonal (P, D, Q, S)
-                        enforce_stationarity=False,
-                        enforce_invertibility=False,
-                        simple_differencing=True)  # Faster training
-    # Train the model
-    sarima_model = sarima_model.fit(method='powell', maxiter=200, disp=True)
-
-    # We should later on only return the model, for SARIMA we need df and df_train
-    return sarima_model
+    model.fit(prophet_df)
+    
+    return model
