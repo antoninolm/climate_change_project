@@ -8,8 +8,6 @@ from ml_logic.registry import load_models
 
 app = FastAPI()
 
-city_models = load_models()
-
 # Check if the server is running
 @app.get('/')
 def index():
@@ -23,14 +21,20 @@ def get_cities():
     """
     Returns the list of cities to display on the front-end
     """
+    print('HERE')
+    city_models = load_models()
+    print(city_models)
+    
+    cities = list(city_models.keys())
 
-    return city_models.keys()
+    return {"cities": cities}
 
 @app.get('/predict')
 def predict(city: str, years: int, month: int):
     """
     Loads the model and gets a prediction
     """
+    city_models = load_models()
 
     # Get the model
     model = city_models[city]

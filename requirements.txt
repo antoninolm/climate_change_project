@@ -12,3 +12,5 @@ streamlit-folium==0.9.0
 tensorflow
 prophet
 streamlit
+seaborn
+folium

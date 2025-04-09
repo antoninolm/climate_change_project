@@ -11,7 +11,7 @@ develop:
 run_api:
 	fastapi run app/api.py
 run_frontend:
-	streamlit run app/frontend.py
+	streamlit run app/frontend/Home.py
 
 #########
 ### DOCKER LOCAL
