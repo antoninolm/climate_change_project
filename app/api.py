@@ -1,8 +1,10 @@
 """
 API logic
 """
+import datetime
 from fastapi import FastAPI
-from ml_logic.registry import load_model
+from ml_logic.registry import load_models
+
 
 app = FastAPI()
 
@@ -14,37 +16,62 @@ def index():
     """
     return {'ok': True}
 
+@app.get('/cities')
+def get_cities():
+    """
+    Returns the list of cities to display on the front-end
+    """
+    print('HERE')
+    city_models = load_models()
+    print(city_models)
+    
+    cities = list(city_models.keys())
+
+    return {"cities": cities}
+
 @app.get('/predict')
-def predict(steps: int):
+def predict(city: str, years: int, month: int):
     """
     Loads the model and gets a prediction
     """
+    city_models = load_models()
 
-    # Load the model and get data
-    model = load_model('sarima')
+    # Get the model
+    model = city_models[city]
 
-    def make_predictions(model, steps=1):
-        """
-        Given a trained SARIMA model, this function will forecast the temperature
-        for the next `steps` days.
-        It returns both the predicted values and the confidence intervals.
-        """
-        # Get the forecast for the next `steps` days
-        forecast_obj = model.get_forecast(steps=steps)
+    # Build future dataframe
+    future = model.make_future_dataframe(periods=(years + 1)*12, freq='MS')
 
-        # Extract the predicted values
-        forecast_values = forecast_obj.predicted_mean
+    # Set future constant features
+    last_co2 = model.history['co2'].iloc[-1]
+    last_ch4 = model.history['ch4'].iloc[-1]
+    last_rainfall = model.history['amount_precipitation'].iloc[-1]
 
-        # Extract the confidence intervals (optional)
-        conf_int = forecast_obj.conf_int()
+    future['co2'] = last_co2
+    future['ch4'] = last_ch4
+    future['amount_precipitation'] = last_rainfall
+    future['year'] = future['ds'].dt.year
+    future['month'] = future['ds'].dt.month
 
-        # Return both the forecasted values and the confidence intervals
-        return forecast_values, conf_int
+    # Predict future
+    forecast = model.predict(future)
 
-    # Call the make_predictions function to predict the next day's temperature
+    # Add year/month columns into forecast (optional, for easier navigation)
+    forecast['year'] = forecast['ds'].dt.year
+    forecast['month'] = forecast['ds'].dt.month
 
-    forecast_values, conf_int = make_predictions(model, steps)
+    # Build target date
+    now = datetime.datetime.now()
+    target_year = now.year + years
+    target_month = month
 
-    # Return the forecasted values (temperature)
+    # Find prediction for the specific month and year
+    target_row = forecast[
+        (forecast['year'] == target_year) & 
+        (forecast['month'] == target_month)
+    ].iloc[0]
 
-    return {'prediction': forecast_values.tolist()[-1], 'confidence_interval': conf_int.values.tolist()[-1]}
+    # Get prediction
+    predicted_temp = target_row['yhat']
+
+    return { predicted_temp, target_year }

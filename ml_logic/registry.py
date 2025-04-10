@@ -1,20 +1,40 @@
 """
 All the loading / saving model
 """
+import os
 import pickle
 
-def save_model(model,file_name):
+os.makedirs('models', exist_ok=True)
+
+def sanitize(name):
+    """
+    Ensure name won't break pickle dumping / loading
+    """
+    return name.replace('/', '_').replace(' ', '_').replace('\\', '_')
+
+def save_model(model, city_name):
     """
     Saves a model to a pickle
     """
-    with open(f"models/{file_name}.pkl", "wb") as f:
+    safe_city_name = sanitize(city_name)
+
+    with open(f"models/{safe_city_name}_prophet.pkl", "wb") as f:
         pickle.dump(model, f)
 
-def load_model(file_name: str):
+def load_models():
     """
-    Loads the model from the exported pickle
+    Loads the models from the exported pickle
     """
-    with open(f'models/{file_name}.pkl', 'rb') as model_file:
-        model = pickle.load(model_file)
+    model_folder = 'models'
+    city_models = {}
 
-        return model
+    for filename in os.listdir(model_folder):
+        if filename.endswith('_prophet.pkl'):
+            city_name = filename.replace('_prophet.pkl', '')
+
+            display_name = city_name.replace('_', ' ')  # Nice display
+
+            with open(os.path.join(model_folder, filename), 'rb') as f:
+                city_models[display_name] = pickle.load(f)
+
+    return city_models
